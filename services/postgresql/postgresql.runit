@@ -2,6 +2,7 @@
 
 set -e
 POSTGRESQL_VERSION=${POSTGRESQL_VERSION:-9.3}
-POSTGRESQL_DATA_DIR=${POSTGRESQL_DATA_DIR:-/var/lib/postgresql/data}
+POSTGRESQL_CONF_DIR=${POSTGRESQL_CONF_DIR:-/etc/postgresql/${POSTGRESQL_VERSION}/main}
+POSTGRESQL_DATA_DIR=${POSTGRESQL_DATA_DIR:-/var/lib/postgresql/${POSTGRESQL_VERSION}/main}
 
-exec /sbin/setuser postgres /usr/lib/postgresql/${POSTGRESQL_VERSION}/bin/postmaster -D ${POSTGRESQL_DATA_DIR} 2>&1
+exec /sbin/setuser postgres /usr/lib/postgresql/${POSTGRESQL_VERSION}/bin/postgres -D ${POSTGRESQL_DATA_DIR} -c config_file=${POSTGRESQL_CONF_DIR}/postgresql.conf 2>&1

@@ -42,6 +42,7 @@ git push origin 9.3
 
 **Prepare folder on host for container volumes**
 ```
+sudo mkdir -p /opt/docker/postgresql/etc/
 sudo mkdir -p /opt/docker/postgresql/lib/
 sudo mkdir -p /opt/docker/postgresql/log/
 ```
@@ -51,12 +52,13 @@ sudo mkdir -p /opt/docker/postgresql/log/
 docker stop postgresql
 docker rm postgresql
 
-docker run --rm -it \
+docker run -d -t \
   -e POSTGRESQL_DB_NAME=mydb \
-  -e POSTGRESQL_DB_USERNAME=user \
-  -e POSTGRESQL_DB_PASSWORD=pass \
+  -e POSTGRESQL_DB_USERNAME=myuser \
+  -e POSTGRESQL_DB_PASSWORD=mypass \
   -p 5432:5432 \
-  -v /opt/docker/postgresql/lib:/var/lib/postgresql \
+  -v /opt/docker/postgresql/etc:/etc/postgresql/9.3/main \
+  -v /opt/docker/postgresql/lib:/var/lib/postgresql/9.3/main \
   -v /opt/docker/postgresql/log:/var/log/postgresql \
   --name postgresql \
   madharjan/docker-postgresql:9.3 /sbin/my_init
@@ -72,6 +74,7 @@ After=docker.service
 [Service]
 TimeoutStartSec=0
 
+ExecStartPre=-/bin/mkdir -p /opt/docker/postgresql/etc
 ExecStartPre=-/bin/mkdir -p /opt/docker/postgresql/lib
 ExecStartPre=-/bin/mkdir -p /opt/docker/postgresql/log
 ExecStartPre=-/usr/bin/docker stop postgresql
@@ -83,7 +86,8 @@ ExecStart=/usr/bin/docker run \
   -e POSTGRESQL_DB_USERNAME=user \
   -e POSTGRESQL_DB_PASSWORD=pass \
   -p 172.17.0.1:5432:5432 \
-  -v /opt/docker/postgresql/lib/:/var/lib \
+  -v /opt/docker/postgresql/etc/:/etc/postgresql/etc/9.3/main \
+  -v /opt/docker/postgresql/lib/:/var/lib/postgresql/9.3/main \
   -v /opt/docker/postgresql/log:/var/log/postgresql \
   --name postgresql \
   madharjan/docker-postgresql:9.3 /sbin/my_init
