@@ -61,7 +61,7 @@ docker run -d -t \
   -v /opt/docker/postgresql/lib:/var/lib/postgresql/9.3/main \
   -v /opt/docker/postgresql/log:/var/log/postgresql \
   --name postgresql \
-  madharjan/docker-postgresql:9.3 /sbin/my_init
+  madharjan/docker-postgresql:9.3
 ```
 
 **Systemd Unit File**
@@ -90,7 +90,7 @@ ExecStart=/usr/bin/docker run \
   -v /opt/docker/postgresql/lib/:/var/lib/postgresql/9.3/main \
   -v /opt/docker/postgresql/log:/var/log/postgresql \
   --name postgresql \
-  madharjan/docker-postgresql:9.3 /sbin/my_init
+  madharjan/docker-postgresql:9.3
 
 ExecStop=/usr/bin/docker stop -t 2 postgresql
 
