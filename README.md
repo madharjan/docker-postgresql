@@ -53,9 +53,9 @@ docker stop postgresql
 docker rm postgresql
 
 docker run -d -t \
-  -e POSTGRESQL_DB_NAME=mydb \
-  -e POSTGRESQL_DB_USERNAME=myuser \
-  -e POSTGRESQL_DB_PASSWORD=mypass \
+  -e POSTGRESQL_DATABASE=mydb \
+  -e POSTGRESQL_USERNAME=myuser \
+  -e POSTGRESQL_PASSWORD=mypass \
   -p 5432:5432 \
   -v /opt/docker/postgresql/etc:/etc/postgresql/9.3/main \
   -v /opt/docker/postgresql/lib:/var/lib/postgresql/9.3/main \
@@ -82,9 +82,9 @@ ExecStartPre=-/usr/bin/docker rm postgresql
 ExecStartPre=-/usr/bin/docker pull madharjan/docker-postgresql:9.3
 
 ExecStart=/usr/bin/docker run \
-  -e POSTGRESQL_DB_NAME=mydb \
-  -e POSTGRESQL_DB_USERNAME=user \
-  -e POSTGRESQL_DB_PASSWORD=pass \
+  -e POSTGRESQL_DATABASE=mydb \
+  -e POSTGRESQL_USERNAME=myuser \
+  -e POSTGRESQL_PASSWORD=mypass \
   -p 172.17.0.1:5432:5432 \
   -v /opt/docker/postgresql/etc/:/etc/postgresql/etc/9.3/main \
   -v /opt/docker/postgresql/lib/:/var/lib/postgresql/9.3/main \

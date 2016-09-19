@@ -2,7 +2,7 @@
 
 set -e
 
-if [ "$DEBUG" == true ]; then
+if [ "${DEBUG}" == true ]; then
   set -x
 fi
 
@@ -14,10 +14,10 @@ pgsql_client()
 
 POSTGRESQL_VERSION=${POSTGRESQL_VERSION:-9.3}
 
-POSTGRESQL_DB_NAME=${POSTGRESQL_DB_NAME:-postgres}
-POSTGRESQL_DB_USERNAME=${POSTGRESQL_DB_USERNAME:-postgres}
-POSTGRESQL_DB_PASSWORD=${POSTGRESQL_DB_PASSWORD:-}
-POSTGRESQL_DB_ENCODING=${POSTGRESQL_DB_ENCODING:-UNICODE}
+POSTGRESQL_DATABASE=${POSTGRESQL_DATABASE:-postgres}
+POSTGRESQL_USERNAME=${POSTGRESQL_USERNAME:-postgres}
+POSTGRESQL_PASSWORD=${POSTGRESQL_PASSWORD:-}
+POSTGRESQL_ENCODING=${POSTGRESQL_ENCODING:-UNICODE}
 
 POSTGRESQL_USER=${POSTGRESQL_USER:-postgres}
 
@@ -35,14 +35,14 @@ if [ ! -s "$POSTGRESQL_DATA_DIR/PG_VERSION" ]; then
   echo "Initializing database ..."
   pg_createcluster -d ${POSTGRESQL_DATA_DIR} ${POSTGRESQL_VERSION} main
 
-  if [ "$POSTGRESQL_DB_PASSWORD" ]; then
+  if [ "$POSTGRESQL_PASSWORD" ]; then
     { echo; echo "host all all 0.0.0.0/0 md5"; } >> "${POSTGRESQL_CONF_DIR}/pg_hba.conf"
     { echo; echo "listen_addresses='*'"; } >> "${POSTGRESQL_CONF_DIR}/postgresql.conf"
   else
     cat >&2 <<-'EOWARN'
 ****************************************************
 WARNING: No password has been set for the database.
-         Use "-e POSTGRESQL_DB_PASSWORD=password" to
+         Use "-e POSTGRESQL_PASSWORD=password" to
          set it in "docker run".
 ****************************************************
 EOWARN
@@ -50,19 +50,19 @@ EOWARN
 
   pg_ctlcluster ${POSTGRESQL_VERSION} main start
 
-  if [ "$POSTGRESQL_DB_NAME" != 'postgres' ]; then
+  if [ "$POSTGRESQL_DATABASE" != 'postgres' ]; then
     echo "Creating database ..."
-    pgsql_client "CREATE DATABASE ${POSTGRESQL_DB_NAME} ENCODING '${POSTGRESQL_DB_ENCODING}';"
+    pgsql_client "CREATE DATABASE ${POSTGRESQL_DATABASE} ENCODING '${POSTGRESQL_ENCODING}';"
   fi
 
-  echo "Granting access to database \"${POSTGRESQL_DB_NAME}\" for user \"${POSTGRESQL_DB_USERNAME}\"..."
-  if [ "$POSTGRESQL_DB_USERNAME" = 'postgres' ]; then
+  echo "Granting access to database \"${POSTGRESQL_DATABASE}\" for user \"${POSTGRESQL_USERNAME}\"..."
+  if [ "$POSTGRESQL_USERNAME" = 'postgres' ]; then
       OPERATION='ALTER'
   else
       OPERATION='CREATE'
   fi
-  pgsql_client "${OPERATION} USER ${POSTGRESQL_DB_USERNAME} WITH SUPERUSER PASSWORD '$POSTGRESQL_DB_PASSWORD';"
-  pgsql_client "GRANT ALL PRIVILEGES ON DATABASE ${POSTGRESQL_DB_NAME} TO ${POSTGRESQL_DB_USERNAME};"
+  pgsql_client "${OPERATION} USER ${POSTGRESQL_USERNAME} WITH SUPERUSER PASSWORD '$POSTGRESQL_PASSWORD';"
+  pgsql_client "GRANT ALL PRIVILEGES ON DATABASE ${POSTGRESQL_DATABASE} TO ${POSTGRESQL_USERNAME};"
 
   pg_ctlcluster ${POSTGRESQL_VERSION} main stop
 
