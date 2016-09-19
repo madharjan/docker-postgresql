@@ -1,4 +1,7 @@
 # docker-postgresql
+
+[![](https://images.microbadger.com/badges/version/madharjan/docker-postgresql.svg)](http://microbadger.com/images/madharjan/docker-postgresql "Get your own version badge on microbadger.com")
+
 Docker container for PostgreSQL Server based on [madharjan/docker-base](https://github.com/madharjan/docker-base/)
 
 * PostgreSQL Server 9.3 (docker-postgresql)
