@@ -9,8 +9,16 @@ fi
 pgsql_client()
 {
   local cmd="$1"
-  sudo su - postgres -c "/usr/bin/psql -c \"${cmd}\"" 2>&1
+  sudo su - ${POSTGRESQL_USER} -c "/usr/bin/psql -c \"${cmd}\"" 2>&1
 }
+
+DISABLE_POSTGRESQL=${DISABLE_POSTGRESQL:-0}
+
+if [ ! "${DISABLE_POSTGRESQL}" -eq 0 ]; then
+  touch /etc/service/postgresql/down
+else
+  rm -f /etc/service/postgresql/down
+fi
 
 POSTGRESQL_VERSION=${POSTGRESQL_VERSION:-9.3}
 
@@ -19,7 +27,8 @@ POSTGRESQL_USERNAME=${POSTGRESQL_USERNAME:-postgres}
 POSTGRESQL_PASSWORD=${POSTGRESQL_PASSWORD:-}
 POSTGRESQL_ENCODING=${POSTGRESQL_ENCODING:-UNICODE}
 
-POSTGRESQL_USER=${POSTGRESQL_USER:-postgres}
+POSTGRESQL_USER=postgres
+POSTGRESQL_GROUP=postgres
 
 POSTGRESQL_CONF_DIR=${POSTGRESQL_CONF_DIR:-/etc/postgresql/${POSTGRESQL_VERSION}/main}
 POSTGRESQL_DATA_DIR=${POSTGRESQL_DATA_DIR:-/var/lib/postgresql/${POSTGRESQL_VERSION}/main}
@@ -27,13 +36,13 @@ POSTGRESQL_BIN_DIR=${POSTGRESQL_BIN_DIR:-/usr/lib/postgresql/${POSTGRESQL_VERSIO
 
 mkdir -p ${POSTGRESQL_DATA_DIR}
 chmod -R 0700 ${POSTGRESQL_DATA_DIR}
-chown -R ${POSTGRESQL_USER}:${POSTGRESQL_USER} ${POSTGRESQL_DATA_DIR}
+chown -R ${POSTGRESQL_USER}:${POSTGRESQL_GROUP} ${POSTGRESQL_DATA_DIR}
 
 cd ${POSTGRESQL_DATA_DIR}
 
 if [ ! -s "$POSTGRESQL_DATA_DIR/PG_VERSION" ]; then
   echo "Initializing database ..."
-  pg_createcluster -d ${POSTGRESQL_DATA_DIR} ${POSTGRESQL_VERSION} main
+  pg_createcluster -u ${POSTGRESQL_USER} -g ${POSTGRESQL_GROUP} -d ${POSTGRESQL_DATA_DIR} ${POSTGRESQL_VERSION} main
 
   if [ "$POSTGRESQL_PASSWORD" ]; then
     { echo; echo "host all all 0.0.0.0/0 md5"; } >> "${POSTGRESQL_CONF_DIR}/pg_hba.conf"

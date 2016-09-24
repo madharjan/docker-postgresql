@@ -6,6 +6,15 @@ Docker container for PostgreSQL Server based on [madharjan/docker-base](https://
 
 * PostgreSQL Server 9.3 (docker-postgresql)
 
+**Environment**
+
+| Variable             | Default      | Example        |
+|----------------------|--------------|----------------|
+| DISABLE_POSTGRESQL   | 0            | 1 (to disable) |
+| POSTGRESQL_DATABASE  | postgres     | mydb           |
+| POSTGRESQL_USERNAME  | postgres     | myuser         |
+| POSTGRESQL_PASSWORD  |              | mypass         |
+
 ## Build
 
 **Clone this project**
@@ -23,7 +32,9 @@ docker login
 make
 
 # test
-make test
+make run
+make tests
+make clean
 
 # tag
 make tag_latest
