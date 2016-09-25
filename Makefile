@@ -34,6 +34,8 @@ run:
 	docker run -d -t \
 		-e DEBUG=true \
 	  --name postgresql_default -t $(NAME):$(VERSION)
+	sleep 3
+
 tests:
 	./bats/bin/bats test/tests.bats
 
