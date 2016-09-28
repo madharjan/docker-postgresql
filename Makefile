@@ -17,33 +17,33 @@ run:
 	rm -rf /tmp/postgresql
 	mkdir -p /tmp/postgresql
 
-	docker run -d -t \
+	docker run -d \
 		-e POSTGRESQL_DATABASE=mydb \
 		-e POSTGRESQL_USERNAME=myuser \
 		-e POSTGRESQL_PASSWORD=mypass \
 		-v /tmp/postgresql/etc/:/etc/postgresql/9.3/main \
 		-v /tmp/postgresql/lib:/var/lib/postgresql/9.3/main \
 		-e DEBUG=true \
-		--name postgresql -t $(NAME):$(VERSION)
+		--name postgresql $(NAME):$(VERSION)
 
-	docker run -d -t \
+	docker run -d \
 		-e DISABLE_POSTGRESQL=1 \
 		-e DEBUG=true \
-		--name postgresql_no_postgresql -t $(NAME):$(VERSION)
+		--name postgresql_no_postgresql $(NAME):$(VERSION)
 
-	docker run -d -t \
+	docker run -d \
 		-e DEBUG=true \
-	  --name postgresql_default -t $(NAME):$(VERSION)
+	  --name postgresql_default $(NAME):$(VERSION)
 	sleep 3
 
 tests:
 	./bats/bin/bats test/tests.bats
 
 clean:
-	docker exec -t postgresql /bin/bash -c "sv stop postgresql" || true
+	docker exec postgresql /bin/bash -c "sv stop postgresql" || true
 	sleep 2
-	docker exec -t postgresql /bin/bash -c "rm -rf /etc/postgresql/9.3/main/*" || true
-	docker exec -t postgresql /bin/bash -c "rm -rf /var/lib/postgresql/9.3/main/*" || true
+	docker exec postgresql /bin/bash -c "rm -rf /etc/postgresql/9.3/main/*" || true
+	docker exec postgresql /bin/bash -c "rm -rf /var/lib/postgresql/9.3/main/*" || true
 	docker stop postgresql postgresql_no_postgresql postgresql_default || true
 	docker rm postgresql postgresql_no_postgresql postgresql_default || true
 	rm -rf /tmp/postgresql || true

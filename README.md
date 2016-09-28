@@ -66,7 +66,7 @@ sudo mkdir -p /opt/docker/postgresql/log/
 docker stop postgresql
 docker rm postgresql
 
-docker run -d -t \
+docker run -d \
   -e POSTGRESQL_DATABASE=mydb \
   -e POSTGRESQL_USERNAME=myuser \
   -e POSTGRESQL_PASSWORD=mypass \
