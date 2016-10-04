@@ -26,17 +26,23 @@ run:
 		-e DEBUG=true \
 		--name postgresql $(NAME):$(VERSION)
 
+	sleep 2
+
 	docker run -d \
 		-e DISABLE_POSTGRESQL=1 \
 		-e DEBUG=true \
 		--name postgresql_no_postgresql $(NAME):$(VERSION)
 
+	sleep 2
+
 	docker run -d \
 		-e DEBUG=true \
 	  --name postgresql_default $(NAME):$(VERSION)
+	
 	sleep 3
 
 tests:
+	sleep 5
 	./bats/bin/bats test/tests.bats
 
 clean:
