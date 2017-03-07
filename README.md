@@ -4,7 +4,11 @@
 
 Docker container for PostgreSQL Server based on [madharjan/docker-base](https://github.com/madharjan/docker-base/)
 
-* PostgreSQL Server 9.3 (docker-postgresql)
+**Features**
+* Environment variables to create database, user and set password
+* Bats ([sstephenson/bats](https://github.com/sstephenson/bats/)) based test cases
+
+## PostgreSQL Server 9.3 (docker-postgresql)
 
 **Environment**
 
