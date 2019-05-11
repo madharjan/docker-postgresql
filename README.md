@@ -1,16 +1,16 @@
 # docker-postgresql
 
-[![](https://images.microbadger.com/badges/version/madharjan/docker-postgresql.svg)](http://microbadger.com/images/madharjan/docker-postgresql "Get your own version badge on microbadger.com")
+[![Build Status](https://travis-ci.com/madharjan/docker-postgresql.svg?branch=master)](https://travis-ci.com/madharjan/docker-postgresql)
+[![Layers](https://images.microbadger.com/badges/image/madharjan/docker-postgresql.svg)](http://microbadger.com/images/madharjan/docker-postgresql)
 
 Docker container for PostgreSQL Server based on [madharjan/docker-base](https://github.com/madharjan/docker-base/)
 
-**Features**
+## Features
+
 * Environment variables to create database, user and set password
-* Bats ([sstephenson/bats](https://github.com/sstephenson/bats/)) based test cases
+* Bats [bats-core/bats-core](https://github.com/bats-core/bats-core) based test cases
 
-## PostgreSQL Server 9.3 (docker-postgresql)
-
-**Environment**
+## PostgreSQL Server 9.5 (docker-postgresql)
 
 | Variable             | Default      | Example        |
 |----------------------|--------------|----------------|
@@ -21,21 +21,23 @@ Docker container for PostgreSQL Server based on [madharjan/docker-base](https://
 
 ## Build
 
-**Clone this project**
-```
+### Clone this project
+
+```bash
 git clone https://github.com/madharjan/docker-postgresql
 cd docker-postgresql
 ```
 
-**Build Containers**
-```
+### Build Containers
+
+```bash
 # login to DockerHub
 docker login
 
 # build
 make
 
-# test
+# tests
 make run
 make tests
 make clean
@@ -43,30 +45,30 @@ make clean
 # tag
 make tag_latest
 
-
 # release
 make release
 ```
 
-**Tag and Commit to Git**
-```
-git tag 9.3
-git push origin 9.3
+### Tag and Commit to Git
+
+```bash
+git tag 9.5
+git push origin 9.5
 ```
 
 ## Run Container
 
-### PostgreSQL
+### Prepare folder on host for container volumes
 
-**Prepare folder on host for container volumes**
-```
+```bash
 sudo mkdir -p /opt/docker/postgresql/etc/
 sudo mkdir -p /opt/docker/postgresql/lib/
 sudo mkdir -p /opt/docker/postgresql/log/
 ```
 
-**Run `docker-postgresql`**
-```
+### Run `docker-postgresql`
+
+```bash
 docker stop postgresql
 docker rm postgresql
 
@@ -75,15 +77,18 @@ docker run -d \
   -e POSTGRESQL_USERNAME=myuser \
   -e POSTGRESQL_PASSWORD=mypass \
   -p 5432:5432 \
-  -v /opt/docker/postgresql/etc:/etc/postgresql/9.3/main \
-  -v /opt/docker/postgresql/lib:/var/lib/postgresql/9.3/main \
+  -v /opt/docker/postgresql/etc:/etc/postgresql/9.5/main \
+  -v /opt/docker/postgresql/lib:/var/lib/postgresql/9.5/main \
   -v /opt/docker/postgresql/log:/var/log/postgresql \
   --name postgresql \
-  madharjan/docker-postgresql:9.3
+  madharjan/docker-postgresql:9.5
 ```
 
-**Systemd Unit File**
-```
+## Run via Systemd
+
+### Systemd Unit File - basic example
+
+```txt
 [Unit]
 Description=PostgreSQL Server
 
@@ -97,21 +102,48 @@ ExecStartPre=-/bin/mkdir -p /opt/docker/postgresql/lib
 ExecStartPre=-/bin/mkdir -p /opt/docker/postgresql/log
 ExecStartPre=-/usr/bin/docker stop postgresql
 ExecStartPre=-/usr/bin/docker rm postgresql
-ExecStartPre=-/usr/bin/docker pull madharjan/docker-postgresql:9.3
+ExecStartPre=-/usr/bin/docker pull madharjan/docker-postgresql:9.5
 
 ExecStart=/usr/bin/docker run \
   -e POSTGRESQL_DATABASE=mydb \
   -e POSTGRESQL_USERNAME=myuser \
   -e POSTGRESQL_PASSWORD=mypass \
-  -p 172.17.0.1:5432:5432 \
-  -v /opt/docker/postgresql/etc/:/etc/postgresql/etc/9.3/main \
-  -v /opt/docker/postgresql/lib/:/var/lib/postgresql/9.3/main \
+  -p 5432:5432 \
+  -v /opt/docker/postgresql/etc:/etc/postgresql/etc/9.5/main \
+  -v /opt/docker/postgresql/lib:/var/lib/postgresql/9.5/main \
   -v /opt/docker/postgresql/log:/var/log/postgresql \
   --name postgresql \
-  madharjan/docker-postgresql:9.3
+  madharjan/docker-postgresql:9.5
 
 ExecStop=/usr/bin/docker stop -t 2 postgresql
 
 [Install]
 WantedBy=multi-user.target
+```
+
+### Generate Systemd Unit File
+
+| Variable                 | Default          | Example                                                          |
+|--------------------------|------------------|------------------------------------------------------------------|
+| PORT                     | 5432             | 8080                                                             |
+| VOLUME_HOME              | /opt/docker      | /opt/data                                                        |
+| VERSION                  | 9.5              | latest                                                           |
+| POSTGRESQL_DATABASE      | postgres         | mydb                                                             |
+| POSTGRESQL_USERNAME      | postgres         | user                                                             |
+| POSTGRESQL_PASSWORD      |                  | pass                                                             |
+
+```bash
+docker run --rm -it \
+  -e PORT=5432 \
+  -e VOLUME_HOME=/opt/docker \
+  -e VERSION=9.5 \
+  -e MYSQL_DATABASE=mydb \
+  -e MYSQL_USERNAME=user \
+  -e MYSQL_PASSWORD=pass \
+  madharjan/docker-postgresql:9.5 \
+  /bin/sh -c "postgresql-systemd-unit" | \
+  sudo tee /etc/systemd/system/postgresql.service
+
+sudo systemctl enable postgresql
+sudo systemctl start postgresql
 ```

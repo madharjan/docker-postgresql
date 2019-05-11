@@ -30,7 +30,7 @@ After=docker.service
 [Service]
 TimeoutStartSec=0
 
-ExecStartPre=-/bin/mkdir -p ${VOLUME_HOME}/postgresql/etc/conf.d
+ExecStartPre=-/bin/mkdir -p ${VOLUME_HOME}/postgresql/etc
 ExecStartPre=-/bin/mkdir -p ${VOLUME_HOME}/postgresql/lib
 ExecStartPre=-/bin/mkdir -p ${VOLUME_HOME}/postgresql/log
 ExecStartPre=-/usr/bin/docker stop postgresql
@@ -42,8 +42,8 @@ ExecStart=/usr/bin/docker run \\
   -e POSTGRESQL_USERNAME=${POSTGRESQL_USERNAME} \\
   -e POSTGRESQL_PASSWORD=${POSTGRESQL_PASSWORD} \\
   -p ${PORT}:3306 \\
-  -v ${VOLUME_HOME}/postgresql/etc/conf.d:/etc/postgresql/conf.d \\
-  -v ${VOLUME_HOME}/postgresql/lib/:/var/lib \\
+  -v ${VOLUME_HOME}/postgresql/etc:/etc/postgresql/etc/9.5/main \\
+  -v ${VOLUME_HOME}/postgresql/lib:/var/lib/postgresql/9.5/main \\
   -v ${VOLUME_HOME}/postgresql/log:/var/log/postgresql \\
   --name postgresql \\
   madharjan/docker-postgresql:9.5
