@@ -9,7 +9,7 @@ fi
 pgsql_client()
 {
   local cmd="$1"
-  sudo su - ${POSTGRESQL_USER} -c "/usr/bin/psql -c \"${cmd}\"" 2>&1
+  su - ${POSTGRESQL_USER} -c "/usr/bin/psql -c \"${cmd}\"" 2>&1
 }
 
 DISABLE_POSTGRESQL=${DISABLE_POSTGRESQL:-0}
@@ -20,7 +20,7 @@ else
   rm -f /etc/service/postgresql/down
 fi
 
-POSTGRESQL_VERSION=${POSTGRESQL_VERSION:-9.3}
+POSTGRESQL_VERSION=${POSTGRESQL_VERSION:-9.5}
 
 POSTGRESQL_DATABASE=${POSTGRESQL_DATABASE:-postgres}
 POSTGRESQL_USERNAME=${POSTGRESQL_USERNAME:-postgres}

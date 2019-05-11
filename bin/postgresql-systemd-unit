@@ -1,0 +1,55 @@
+#!/bin/sh
+
+set e
+
+if [ "${DEBUG}" = true ]; then
+  set -x
+fi
+
+DEF_PORT=5432
+DEF_VOLUME_HOME=${VOLUME_HOME}
+DEF_VERSION=9.5
+DEF_POSTGRESQL_DATABASE=temp
+DEF_POSTGRESQL_USERNAME=postgres
+DEF_POSTGRESQL_PASSWORD=postgres
+
+PORT=${PORT:-$DEF_PORT}
+VOLUME_HOME=${VOLUME_HOME:-$DEF_VOLUME_HOME}
+VERSION=${VERSION:-$DEF_VERSION}
+
+POSTGRESQL_DATABASE=${POSTGRESQL_DATABASE:-$DEF_POSTGRESQL_DATABASE}
+POSTGRESQL_USERNAME=${POSTGRESQL_USERNAME:-$DEF_POSTGRESQL_USERNAME}
+POSTGRESQL_PASSWORD=${POSTGRESQL_PASSWORD:-$DEF_POSTGRESQL_PASSWORD}
+
+/bin/cat <<-EOF
+[Unit]
+Description=Postgres SQL Server
+
+After=docker.service
+
+[Service]
+TimeoutStartSec=0
+
+ExecStartPre=-/bin/mkdir -p ${VOLUME_HOME}/postgresql/etc/conf.d
+ExecStartPre=-/bin/mkdir -p ${VOLUME_HOME}/postgresql/lib
+ExecStartPre=-/bin/mkdir -p ${VOLUME_HOME}/postgresql/log
+ExecStartPre=-/usr/bin/docker stop postgresql
+ExecStartPre=-/usr/bin/docker rm postgresql
+ExecStartPre=-/usr/bin/docker pull madharjan/docker-postgresql:9.5
+
+ExecStart=/usr/bin/docker run \\
+  -e POSTGRESQL_DATABASE=${POSTGRESQL_DATABASE} \\
+  -e POSTGRESQL_USERNAME=${POSTGRESQL_USERNAME} \\
+  -e POSTGRESQL_PASSWORD=${POSTGRESQL_PASSWORD} \\
+  -p ${PORT}:3306 \\
+  -v ${VOLUME_HOME}/postgresql/etc/conf.d:/etc/postgresql/conf.d \\
+  -v ${VOLUME_HOME}/postgresql/lib/:/var/lib \\
+  -v ${VOLUME_HOME}/postgresql/log:/var/log/postgresql \\
+  --name postgresql \\
+  madharjan/docker-postgresql:9.5
+
+ExecStop=/usr/bin/docker stop -t 2 postgresql
+
+[Install]
+WantedBy=multi-user.target
+EOF

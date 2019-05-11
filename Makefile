@@ -1,8 +1,10 @@
 
 NAME = madharjan/docker-postgresql
-VERSION = 9.3
+VERSION = 9.5
 
-.PHONY: all build run tests clean tag_latest release clean_images
+DEBUG ?= true
+
+.PHONY: all build run tests stop clean tag_latest release clean_images
 
 all: build
 
@@ -10,7 +12,7 @@ build:
 	docker build \
 	 --build-arg POSTGRESQL_VERSION=$(VERSION) \
 	 --build-arg VCS_REF=`git rev-parse --short HEAD` \
-	 --build-arg DEBUG=true \
+	 --build-arg DEBUG=${DEBUG} \
 	 -t $(NAME):$(VERSION) --rm .
 
 run:
@@ -23,20 +25,20 @@ run:
 		-e POSTGRESQL_PASSWORD=mypass \
 		-v /tmp/postgresql/etc/:/etc/postgresql/9.3/main \
 		-v /tmp/postgresql/lib:/var/lib/postgresql/9.3/main \
-		-e DEBUG=true \
+		-e DEBUG=${DEBUG} \
 		--name postgresql $(NAME):$(VERSION)
 
 	sleep 2
 
 	docker run -d \
 		-e DISABLE_POSTGRESQL=1 \
-		-e DEBUG=true \
+		-e DEBUG=${DEBUG} \
 		--name postgresql_no_postgresql $(NAME):$(VERSION)
 
 	sleep 2
 
 	docker run -d \
-		-e DEBUG=true \
+		-e DEBUG=${DEBUG} \
 	  --name postgresql_default $(NAME):$(VERSION)
 	
 	sleep 3
@@ -45,12 +47,14 @@ tests:
 	sleep 5
 	./bats/bin/bats test/tests.bats
 
-clean:
+stop:
 	docker exec postgresql /bin/bash -c "sv stop postgresql" || true
 	sleep 2
 	docker exec postgresql /bin/bash -c "rm -rf /etc/postgresql/9.3/main/*" || true
 	docker exec postgresql /bin/bash -c "rm -rf /var/lib/postgresql/9.3/main/*" || true
 	docker stop postgresql postgresql_no_postgresql postgresql_default || true
+
+clean: stop
 	docker rm postgresql postgresql_no_postgresql postgresql_default || true
 	rm -rf /tmp/postgresql || true
 
@@ -59,10 +63,9 @@ tag_latest:
 
 release: run tests clean tag_latest
 	@if ! docker images $(NAME) | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME) version $(VERSION) is not yet built. Please run 'make build'"; false; fi
-	@if ! head -n 1 Changelog.md | grep -q 'release date'; then echo 'Please note the release date in Changelog.md.' && false; fi
 	docker push $(NAME)
 	@echo "*** Don't forget to create a tag. git tag $(VERSION) && git push origin $(VERSION) ***"
-	curl -X https://hooks.microbadger.com/images/madharjan/docker-postgresql/jaJQb-O_tU-ZppG--6GHnJSaiBU=
+	curl -s -X POST https://hooks.microbadger.com/images/$(NAME)/jaJQb-O_tU-ZppG--6GHnJSaiBU=
 
 clean_images:
 	docker rmi $(NAME):latest $(NAME):$(VERSION) || true
