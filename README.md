@@ -125,23 +125,25 @@ WantedBy=multi-user.target
 
 | Variable                 | Default          | Example                                                          |
 |--------------------------|------------------|------------------------------------------------------------------|
-| PORT                     | 5432             | 8080                                                             |
+| PORT                     |                  | 5432                                                             |
 | VOLUME_HOME              | /opt/docker      | /opt/data                                                        |
 | VERSION                  | 9.5              | latest                                                           |
+| NAME                     | postgresql       | docker-postgresql                                                |
 | POSTGRESQL_DATABASE      | postgres         | mydb                                                             |
 | POSTGRESQL_USERNAME      | postgres         | user                                                             |
 | POSTGRESQL_PASSWORD      |                  | pass                                                             |
 
 ```bash
-docker run --rm -it \
-  -e PORT=5432 \
+docker run --rm \
+  -e PORT= \
   -e VOLUME_HOME=/opt/docker \
   -e VERSION=9.5 \
-  -e MYSQL_DATABASE=mydb \
-  -e MYSQL_USERNAME=user \
-  -e MYSQL_PASSWORD=pass \
+  -e NAME=docker-postgresql \
+  -e POSTGRESQL_DATABASE=mydb \
+  -e POSTGRESQL_USERNAME=user \
+  -e POSTGRESQL_PASSWORD=pass \
   madharjan/docker-postgresql:9.5 \
-  /bin/sh -c "postgresql-systemd-unit" | \
+  postgresql-systemd-unit | \
   sudo tee /etc/systemd/system/postgresql.service
 
 sudo systemctl enable postgresql

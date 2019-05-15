@@ -23,8 +23,8 @@ run:
 		-e POSTGRESQL_DATABASE=mydb \
 		-e POSTGRESQL_USERNAME=myuser \
 		-e POSTGRESQL_PASSWORD=mypass \
-		-v /tmp/postgresql/etc/:/etc/postgresql/9.3/main \
-		-v /tmp/postgresql/lib:/var/lib/postgresql/9.3/main \
+		-v /tmp/postgresql/etc/:/etc/postgresql/$(VERSION)/main \
+		-v /tmp/postgresql/lib:/var/lib/postgresql/$(VERSION)/main \
 		-e DEBUG=${DEBUG} \
 		--name postgresql $(NAME):$(VERSION)
 
@@ -46,7 +46,6 @@ run:
 tests:
 	sleep 5
 	./bats/bin/bats test/tests.bats
-
 stop:
 	docker exec postgresql /bin/bash -c "sv stop postgresql" || true
 	sleep 2

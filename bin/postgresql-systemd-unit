@@ -6,9 +6,10 @@ if [ "${DEBUG}" = true ]; then
   set -x
 fi
 
-DEF_PORT=5432
-DEF_VOLUME_HOME=${VOLUME_HOME}
+DEF_PORT=
+DEF_VOLUME_HOME=/opt/docker
 DEF_VERSION=9.5
+DEF_NAME=postgresql
 DEF_POSTGRESQL_DATABASE=temp
 DEF_POSTGRESQL_USERNAME=postgres
 DEF_POSTGRESQL_PASSWORD=postgres
@@ -16,10 +17,17 @@ DEF_POSTGRESQL_PASSWORD=postgres
 PORT=${PORT:-$DEF_PORT}
 VOLUME_HOME=${VOLUME_HOME:-$DEF_VOLUME_HOME}
 VERSION=${VERSION:-$DEF_VERSION}
+NAME=${NAME:-$DEF_NAME}
 
 POSTGRESQL_DATABASE=${POSTGRESQL_DATABASE:-$DEF_POSTGRESQL_DATABASE}
 POSTGRESQL_USERNAME=${POSTGRESQL_USERNAME:-$DEF_POSTGRESQL_USERNAME}
 POSTGRESQL_PASSWORD=${POSTGRESQL_PASSWORD:-$DEF_POSTGRESQL_PASSWORD}
+
+if [ -z ${PORT} ]; then
+  PORT_LINE=""
+else 
+  PORT_LINE="-p ${PORT}:5432 "
+fi
 
 /bin/cat <<-EOF
 [Unit]
@@ -30,25 +38,24 @@ After=docker.service
 [Service]
 TimeoutStartSec=0
 
-ExecStartPre=-/bin/mkdir -p ${VOLUME_HOME}/postgresql/etc
-ExecStartPre=-/bin/mkdir -p ${VOLUME_HOME}/postgresql/lib
-ExecStartPre=-/bin/mkdir -p ${VOLUME_HOME}/postgresql/log
-ExecStartPre=-/usr/bin/docker stop postgresql
-ExecStartPre=-/usr/bin/docker rm postgresql
-ExecStartPre=-/usr/bin/docker pull madharjan/docker-postgresql:9.5
+ExecStartPre=-/bin/mkdir -p ${VOLUME_HOME}/${NAME}/etc
+ExecStartPre=-/bin/mkdir -p ${VOLUME_HOME}/${NAME}/lib
+ExecStartPre=-/bin/mkdir -p ${VOLUME_HOME}/${NAME}/log
+ExecStartPre=-/usr/bin/docker stop ${NAME}
+ExecStartPre=-/usr/bin/docker rm ${NAME}
+ExecStartPre=-/usr/bin/docker pull madharjan/docker-postgresql:${VERSION}
 
 ExecStart=/usr/bin/docker run \\
   -e POSTGRESQL_DATABASE=${POSTGRESQL_DATABASE} \\
   -e POSTGRESQL_USERNAME=${POSTGRESQL_USERNAME} \\
   -e POSTGRESQL_PASSWORD=${POSTGRESQL_PASSWORD} \\
-  -p ${PORT}:3306 \\
-  -v ${VOLUME_HOME}/postgresql/etc:/etc/postgresql/etc/9.5/main \\
-  -v ${VOLUME_HOME}/postgresql/lib:/var/lib/postgresql/9.5/main \\
-  -v ${VOLUME_HOME}/postgresql/log:/var/log/postgresql \\
-  --name postgresql \\
-  madharjan/docker-postgresql:9.5
+  ${PORT_LINE}-v ${VOLUME_HOME}/${NAME}/etc:/etc/postgresql/etc/${VERSION}/main \\
+  -v ${VOLUME_HOME}/${NAME}/lib:/var/lib/postgresql/${VERSION}/main \\
+  -v ${VOLUME_HOME}/${NAME}/log:/var/log/postgresql \\
+  --name ${NAME} \\
+  madharjan/docker-postgresql:${VERSION}
 
-ExecStop=/usr/bin/docker stop -t 2 postgresql
+ExecStop=/usr/bin/docker stop -t 2 ${NAME}
 
 [Install]
 WantedBy=multi-user.target
