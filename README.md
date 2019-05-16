@@ -12,6 +12,8 @@ Docker container for PostgreSQL Server based on [madharjan/docker-base](https://
 
 ## PostgreSQL Server 9.5 (docker-postgresql)
 
+### Environment
+
 | Variable             | Default      | Example        |
 |----------------------|--------------|----------------|
 | DISABLE_POSTGRESQL   | 0            | 1 (to disable) |
@@ -135,7 +137,7 @@ WantedBy=multi-user.target
 
 ```bash
 docker run --rm \
-  -e PORT= \
+  -e PORT=5432 \
   -e VOLUME_HOME=/opt/docker \
   -e VERSION=9.5 \
   -e NAME=docker-postgresql \

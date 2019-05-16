@@ -46,6 +46,7 @@ run:
 tests:
 	sleep 5
 	./bats/bin/bats test/tests.bats
+
 stop:
 	docker exec postgresql /bin/bash -c "sv stop postgresql" || true
 	sleep 2
@@ -56,6 +57,7 @@ stop:
 clean: stop
 	docker rm postgresql postgresql_no_postgresql postgresql_default || true
 	rm -rf /tmp/postgresql || true
+	docker images | grep "^<none>" | awk '{print$3 }' | xargs docker rmi || true
 
 tag_latest:
 	docker tag $(NAME):$(VERSION) $(NAME):latest
