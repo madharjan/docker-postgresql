@@ -28,9 +28,6 @@ Docker container for PostgreSQL Server based on [madharjan/docker-base](https://
 git clone https://github.com/madharjan/docker-postgresql
 cd docker-postgresql
 
-# login to DockerHub
-docker login
-
 # build
 make
 
