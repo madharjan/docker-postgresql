@@ -23,16 +23,11 @@ Docker container for PostgreSQL Server based on [madharjan/docker-base](https://
 
 ## Build
 
-### Clone this project
-
 ```bash
+# clone project
 git clone https://github.com/madharjan/docker-postgresql
 cd docker-postgresql
-```
 
-### Build Containers
-
-```bash
 # login to DockerHub
 docker login
 
@@ -41,39 +36,27 @@ make
 
 # tests
 make run
-make tests
+make test
+
+# clean
 make clean
-
-# tag
-make tag_latest
-
-# release
-make release
 ```
 
-### Tag and Commit to Git
+## Run
+
+**Note**: update environment variables below as necessary
 
 ```bash
-git tag 9.5
-git push origin 9.5
-```
-
-## Run Container
-
-### Prepare folder on host for container volumes
-
-```bash
+# prepare foldor on host for container volumes
 sudo mkdir -p /opt/docker/postgresql/etc/
 sudo mkdir -p /opt/docker/postgresql/lib/
 sudo mkdir -p /opt/docker/postgresql/log/
-```
 
-### Run `docker-postgresql`
-
-```bash
+# stop & remove previous instances
 docker stop postgresql
 docker rm postgresql
 
+# run container
 docker run -d \
   -e POSTGRESQL_DATABASE=mydb \
   -e POSTGRESQL_USERNAME=myuser \
@@ -86,9 +69,9 @@ docker run -d \
   madharjan/docker-postgresql:9.5
 ```
 
-## Run via Systemd
+## Systemd Unit File
 
-### Systemd Unit File - basic example
+**Note**: update environment variables below as necessary
 
 ```txt
 [Unit]
@@ -123,26 +106,22 @@ ExecStop=/usr/bin/docker stop -t 2 postgresql
 WantedBy=multi-user.target
 ```
 
-### Generate Systemd Unit File
+## Generate Systemd Unit File
 
 | Variable                 | Default          | Example                                                          |
 |--------------------------|------------------|------------------------------------------------------------------|
 | PORT                     |                  | 5432                                                             |
 | VOLUME_HOME              | /opt/docker      | /opt/data                                                        |
-| VERSION                  | 9.5              | latest                                                           |
 | NAME                     | postgresql       | docker-postgresql                                                |
 | POSTGRESQL_DATABASE      | postgres         | mydb                                                             |
 | POSTGRESQL_USERNAME      | postgres         | user                                                             |
 | POSTGRESQL_PASSWORD      |                  | pass                                                             |
 
 ```bash
+# generate postgresql.service
 docker run --rm \
   -e PORT=5432 \
-  -e VOLUME_HOME=/opt/docker \
-  -e VERSION=9.5 \
   -e NAME=docker-postgresql \
-  -e POSTGRESQL_DATABASE=mydb \
-  -e POSTGRESQL_USERNAME=user \
   -e POSTGRESQL_PASSWORD=pass \
   madharjan/docker-postgresql:9.5 \
   postgresql-systemd-unit | \

@@ -30,7 +30,7 @@
 }
 
 @test "checking sql: postgres" {
-  skip "sample code"
+  
   run docker exec postgresql_default /bin/bash -c "su - postgres -c \" /usr/bin/psql -P 'tuples_only' -c \
     'SELECT datname FROM pg_database WHERE datistemplate = false;' \
     \" | grep postgres | xargs"

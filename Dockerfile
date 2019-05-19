@@ -13,7 +13,7 @@ ENV POSTGRESQL_VERSION ${POSTGRESQL_VERSION}
 RUN mkdir -p /build
 COPY . /build
 
-RUN /build/scripts/install.sh && /build/scripts/cleanup.sh
+RUN chmod 755 /build/scripts/*.sh && /build/scripts/install.sh && /build/scripts/cleanup.sh
 
 VOLUME ["/etc/postgresql/${POSTGRESQL_VERSION}/main", "/var/lib/postgresql/${POSTGRESQL_VERSION}/main", "/var/log/postgresql"]
 
