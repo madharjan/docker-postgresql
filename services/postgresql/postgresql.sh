@@ -16,6 +16,10 @@ apt-get install -y --no-install-recommends \
   postgresql \
   postgresql-contrib
 
+
+mkdir -p /var/run/postgresql/9.5-main.pg_stat_tmp
+chown postgres:postgres /var/run/postgresql/9.5-main.pg_stat_tmp -R
+
 mkdir -p /etc/service/postgresql
 cp ${POSTGRESQL_BUILD_PATH}/postgresql.runit /etc/service/postgresql/run
 chmod 750 /etc/service/postgresql/run
